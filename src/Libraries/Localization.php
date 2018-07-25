@@ -6,7 +6,7 @@ use Exception;
 
 class Localization
 {
-	public $currentLocale;
+    public $currentLocale;
 
     public function defaultLocale()
     {
@@ -35,7 +35,7 @@ class Localization
         if ($this->isSupportedLocales($locale)) {
             $this->currentLocale = $locale;
         } elseif ($this->hideDefaultLocaleInURL()) {
-        	$locale = null;
+            $locale = null;
             $this->currentLocale = $this->defaultLocale();
         }
 
@@ -61,7 +61,7 @@ class Localization
 
     public function isSupportedLocales($key)
     {
-    	return array_key_exists($key, $this->supportedLocales());
+    	return $this->supportedLocales()->get($key) !== null;
     }
 
     public function hideDefaultLocaleInUrl()
@@ -81,26 +81,26 @@ class Localization
     public function translatedRouteName($locale = null, $route = null)
     {
     	if ($locale === null) {
-			$locale = $this->currentLocale();
-		}
+            $locale = $this->currentLocale();
+        }
 
-		$currentRoute     = request()->route()->uri();
-		$currentRoute     = ltrim($currentRoute, $this->currentLocale() . '/');
-		$translatedRoutes = app('translator')->getLoader()->load($this->currentLocale(), $this->translatedRouteFileName());
+        $currentRoute     = request()->route()->uri();
+        $currentRoute     = ltrim($currentRoute, $this->currentLocale() . '/');
+        $translatedRoutes = app('translator')->getLoader()->load($this->currentLocale(), $this->translatedRouteFileName());
 
-		foreach ($translatedRoutes as $key => $route) {
-			if ($route === $currentRoute) {
-				$route = $key;
-				break;
-			}
-		}
+        foreach ($translatedRoutes as $key => $route) {
+            if ($route === $currentRoute) {
+                $route = $key;
+                break;
+            }
+        }
 
-		return $route;
+        return $route;
     }
 
     public function translatedRoutePrefix($locale = null)
     {
-		return app('translator')->getLoader()->load($locale, $this->translatedRouteFileName())[$this->currentTranslatedRouteName($locale)] ?? null;
+        return app('translator')->getLoader()->load($locale, $this->translatedRouteFileName())[$this->currentTranslatedRouteName($locale)] ?? null;
     }
 
     public function currentTranslatedRouteName()
@@ -191,28 +191,28 @@ class Localization
     public function localized($locale = null)
     {
     	if ($locale === null) {
-			$locale = $this->currentLocale();
-		}
+            $locale = $this->currentLocale();
+        }
 
-		$route = $this->translatedRoutePrefix($locale);
+        $route = $this->translatedRoutePrefix($locale);
 
-	    $bindedParams  = $this->bindedParams();
+        $bindedParams  = $this->bindedParams();
 
-	    $unBindedParams = $this->unBindParams($bindedParams, $locale);
+        $unBindedParams = $this->unBindParams($bindedParams, $locale);
 
-		foreach ($unBindedParams as $key => $value) {
-		    $route = str_replace('{'.$key.'}', $value, $route);
-		    $route = str_replace('{'.$key.'?}', $value, $route);
-		}
+        foreach ($unBindedParams as $key => $value) {
+            $route = str_replace('{'.$key.'}', $value, $route);
+            $route = str_replace('{'.$key.'?}', $value, $route);
+        }
 
-		// delete empty optional arguments that are not in the $attributes array
-		$route = preg_replace('/\/{[^)]+\?}/', '', $route);
+        // delete empty optional arguments that are not in the $attributes array
+        $route = preg_replace('/\/{[^)]+\?}/', '', $route);
 
-		if ($locale !== $this->defaultLocale() || !$this->hideDefaultLocaleInURL()) {
-			$route = $locale . '/' . $route;
-		}
+        if ($locale !== $this->defaultLocale() || !$this->hideDefaultLocaleInURL()) {
+            $route = $locale . '/' . $route;
+        }
 
-		return app('url')->to($route);
+        return app('url')->to($route);
     }
 
     public function bindedParams()
