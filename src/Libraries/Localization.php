@@ -100,7 +100,19 @@ class Localization
 
     public function translatedRoutePrefix($locale = null)
     {
-        return app('translator')->getLoader()->load($locale, $this->translatedRouteFileName())[$this->currentTranslatedRouteName($locale)] ?? null;
+        $localeTranslatedRoute = app('translator')->getLoader()->load($locale, $this->translatedRouteFileName());
+
+		if (array_key_exists($this->currentTranslatedRouteName($locale), $localeTranslatedRoute)) {
+            return $localeTranslatedRoute[$this->currentTranslatedRouteName($locale)];
+        }
+
+        $url = request()->decodedPath();
+
+        if (array_key_exists(request()->segment(1), $this->supportedLocales()->toArray())) {
+            $url = collect(request()->segments())->except(0)->implode('/');
+        }
+
+        return $url;
     }
 
     public function currentTranslatedRouteName()
