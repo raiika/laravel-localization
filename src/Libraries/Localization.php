@@ -10,19 +10,19 @@ class Localization
 
     public function defaultLocale()
     {
-    	return config('localization.locale') ?? config('app.locale') ?? 'en';
+        return config('localization.locale') ?? config('app.locale') ?? 'en';
     }
 
     public function localeFromUrl($locale = null)
     {
-    	if (empty($locale) || !is_string($locale)) {
+        if (empty($locale) || !is_string($locale)) {
             $locale = request()->segment(1);
         }
 
         if ($this->isSupportedLocales($locale)) {
             return $locale;
         } else {
-        	return null;
+            return null;
         }
 
         return null;
@@ -61,12 +61,12 @@ class Localization
 
     public function isSupportedLocales($key)
     {
-    	return $this->supportedLocales()->get($key) !== null;
+        return $this->supportedLocales()->get($key) !== null;
     }
 
     public function hideDefaultLocaleInUrl()
     {
-    	return config('localization.hideDefaultLocaleInUrl') ?? false;
+        return config('localization.hideDefaultLocaleInUrl') ?? false;
     }
 
     public function currentLocale()
@@ -80,7 +80,7 @@ class Localization
 
     public function translatedRouteName($locale = null, $route = null)
     {
-    	if ($locale === null) {
+        if ($locale === null) {
             $locale = $this->currentLocale();
         }
 
@@ -102,7 +102,7 @@ class Localization
     {
         $localeTranslatedRoute = app('translator')->getLoader()->load($locale, $this->translatedRouteFileName());
 
-		if (array_key_exists($this->currentTranslatedRouteName($locale), $localeTranslatedRoute)) {
+        if (array_key_exists($this->currentTranslatedRouteName($locale), $this->translatedRoutes)) {
             return $localeTranslatedRoute[$this->currentTranslatedRouteName($locale)];
         }
 
@@ -117,21 +117,21 @@ class Localization
 
     public function currentTranslatedRouteName()
     {
-    	return $this->translatedRouteName($this->currentLocale());
+        return $this->translatedRouteName($this->currentLocale());
     }
 
     public function currentTranslatedRoutePrefix()
     {
-    	return $this->translatedRoutePrefix($this->currentLocale());
+        return $this->translatedRoutePrefix($this->currentLocale());
     }
 
     public function localizationKeyRoute($model, $locale)
     {
-    	if (is_callable(config('localization.globalLocalizationKeyRoute'))) {
-    		return config('localization.globalLocalizationKeyRoute')($model, $locale);
-    	}
+        if (is_callable(config('localization.globalLocalizationKeyRoute'))) {
+            return config('localization.globalLocalizationKeyRoute')($model, $locale);
+        }
 
-    	return $model = $model->id;
+        return $model = $model->id;
     }
 
     public function unBindParams($bindedParams, $locale = null)
@@ -202,7 +202,7 @@ class Localization
 
     public function localized($locale = null)
     {
-    	if ($locale === null) {
+        if ($locale === null) {
             $locale = $this->currentLocale();
         }
 
@@ -229,17 +229,19 @@ class Localization
 
     public function bindedParams()
     {
-    	return request()->route()->parameters();
+        return request()->route()->parameters();
     }
 
     public function trans($routeName)
     {
-    	$completeRouteName = "{$this->translatedRouteFileName()}.{$routeName}";
-    	$routePrefix = app('translator')->trans($completeRouteName);
+        $completeRouteName = "{$this->translatedRouteFileName()}.{$routeName}";
+        $routePrefix = app('translator')->trans($completeRouteName);
 
-    	if ($routePrefix === $completeRouteName) {
-    		throw new Exception ('Translated route is not found in the resources/lang/' . $this->translatedRouteFileName() . '.php');
-    	}
+        if ($routePrefix === $completeRouteName) {
+            throw new Exception ('Translated route is not found in the resources/lang/' . $this->translatedRouteFileName() . '.php');
+        }
+
+        $this->translatedRoutes[$routeName] = $routePrefix;
 
         return $routePrefix;
     }
@@ -251,6 +253,6 @@ class Localization
 
     public function translatedRouteFileName()
     {
-    	return config('localization.translatedRoutesFileName') ?? 'routes';
+        return config('localization.translatedRoutesFileName') ?? 'routes';
     }
 }
